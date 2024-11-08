@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to AudioBook Converter</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="card-title text-center mb-4">PDF'den Sesli Kitap Oluşturucu</h1>
+                <form action="/" method="POST" enctype="multipart/form-data">
+                    <!-- PDF Dosyası Yükleme -->
+                    <div class="form-group">
+                        <label for="pdf_file">PDF Dosyasını Yükleyin:</label>
+                        <input type="file" class="form-control-file" name="pdf_file" required>
+                    </div>
+
+                    <!-- Seslendirme Motoru Seçimi -->
+                    <div class="form-group">
+                        <label for="engine_choice">Seslendirme Motoru Seçin:</label>
+                        <select class="form-control" name="engine_choice" id="engine_choice" required onchange="toggleOptions()">
+                            <option value="pyttsx3">pyttsx3 (Çevrimdışı)</option>
+                            <option value="gTTS">gTTS (Çevrimiçi)</option>
+                        </select>
+                    </div>
+
+                    <!-- pyttsx3 için seçenekler -->
+                    <div id="pyttsx3_options" class="form-group">
+                        <label for="voice_id">Anlatıcı Seçin (pyttsx3):</label>
+                        <select class="form-control" name="voice_id">
+                            {% for voice_id, voice_name in voices %}
+                                <option value="{{ voice_id }}">{{ voice_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- gTTS için dil seçimi (dropdown içinde arama ile) -->
+                    <div id="gtts_options" class="form-group" style="display: none;">
+                        <label for="lang">Dil Seçin (gTTS):</label>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle form-control" type="button" id="languageDropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Dil Seçin
+                            </button>
+                            <div class="dropdown-menu p-3" aria-labelledby="languageDropdownButton">
+                                <input type="text" class="form-control mb-2" id="languageSearch" placeholder="Dilde ara...">
+                                <div id="languageOptions">
+                                    <!-- Örnek diller burada listelenmiştir -->
+                                    <button class="dropdown-item" type="button" onclick="selectLanguage('en')">İngilizce</button>
+                                    <button class="dropdown-item" type="button" onclick="selectLanguage('tr')">Türkçe</button>
+                                    <button class="dropdown-item" type="button" onclick="selectLanguage('fr')">Fransızca</button>
+                                    <button class="dropdown-item" type="button" onclick="selectLanguage('de')">Almanca</button>
+                                    <button class="dropdown-item" type="button" onclick="selectLanguage('es')">İspanyolca</button>
+                                    <!-- Listeye eklemek istediğiniz dillerin kodlarını burada ekleyin -->
+                                </div>
+                            </div>
+                            <input type="hidden" name="lang" id="selectedLanguage">
+                        </div>
+                    </div>
+
+                    <!-- Sesli Kitap Oluştur Butonu -->
+                    <button type="submit" class="btn btn-primary btn-block mt-4">Sesli Kitap Oluştur</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap ve JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function toggleOptions() {
+            var engineChoice = document.getElementById("engine_choice").value;
+            document.getElementById("pyttsx3_options").style.display = engineChoice === "pyttsx3" ? "block" : "none";
+            document.getElementById("gtts_options").style.display = engineChoice === "gTTS" ? "block" : "none";
+        }
+
+        // Arama alanı işlevi
+        document.getElementById("languageSearch").addEventListener("input", function() {
+            var filter = this.value.toLowerCase();
+            var options = document.getElementById("languageOptions").getElementsByClassName("dropdown-item");
+
+            for (var i = 0; i < options.length; i++) {
+                var txtValue = options[i].textContent || options[i].innerText;
+                options[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        });
+
+        // Dil seçme işlevi
+        function selectLanguage(langCode) {
+            document.getElementById("selectedLanguage").value = langCode;
+            document.getElementById("languageDropdownButton").textContent = langCode + " seçildi";
+        }
+    </script>
+</body>
+</html>
